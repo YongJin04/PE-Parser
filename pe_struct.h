@@ -1,9 +1,12 @@
 #pragma once
 #include <stdint.h>
 
+typedef uint8_t BYTE;
 typedef uint16_t WORD;
 typedef uint32_t DWORD;
 typedef uint32_t LONG;
+typedef uint64_t ULONGLONG;
+
 
 typedef struct {
     WORD   MZSignature;
@@ -95,3 +98,141 @@ static void showFileCharacteristics(WORD ch) {
     if (ch & 0x4000) printf("             - IMAGE_FILE_UP_SYSTEM_ONLY\n");
     if (ch & 0x8000) printf("             - IMAGE_FILE_BYTES_REVERSED_HI\n");
 }
+
+static const char* getOptionalMagicName(WORD magic) {
+    switch (magic) {
+    case 0x10B: return "PE32";
+    case 0x20B: return "PE64";
+    case 0x107: return "ROM";
+    default: return "Unknown";
+    }
+}
+
+static const char* getImageSubsystemName(unsigned short subsystem) {
+    switch (subsystem) {
+    case 0:  return "IMAGE_SUBSYSTEM_UNKNOWN";
+    case 1:  return "NATIVE";
+    case 2:  return "WINDOWS_GUI";
+    case 3:  return "WINDOWS_CUI";
+    case 5:  return "OS2_CUI";
+    case 7:  return "POSIX_CUI";
+    case 8:  return "NATIVE_WINDOWS";
+    case 9:  return "WINDOWS_CE_GUI";
+    case 10: return "EFI_APPLICATION";
+    case 11: return "EFI_BOOT_SERVICE_DRIVER";
+    case 12: return "EFI_RUNTIME_DRIVER";
+    case 13: return "EFI_ROM";
+    case 14: return "XBOX";
+    case 16: return "WINDOWS_BOOT_APPLICATION";
+    default: return "Unknown Subsystem";
+    }
+}
+
+static void showDllCharacteristics(WORD ch) {
+    if (ch & 0x0001) printf("             - IMAGE_LIBRARY_PROCESS_INIT\n");
+    if (ch & 0x0002) printf("             - IMAGE_LIBRARY_PROCESS_TERM\n");
+    if (ch & 0x0004) printf("             - IMAGE_LIBRARY_THREAD_INIT\n");
+    if (ch & 0x0008) printf("             - IMAGE_LIBRARY_THREAD_TERM\n");
+    if (ch & 0x0020) printf("             - IMAGE_DLLCHARACTERISTICS_HIGH_ENTROPY_VA\n");
+    if (ch & 0x0040) printf("             - IMAGE_DLLCHARACTERISTICS_DYNAMIC_BASE (ASLR)\n");
+    if (ch & 0x0080) printf("             - IMAGE_DLLCHARACTERISTICS_FORCE_INTEGRITY\n");
+    if (ch & 0x0100) printf("             - IMAGE_DLLCHARACTERISTICS_NX_COMPAT\n");
+    if (ch & 0x0200) printf("             - IMAGE_DLLCHARACTERISTICS_NO_ISOLATION\n");
+    if (ch & 0x0400) printf("             - IMAGE_DLLCHARACTERISTICS_NO_SEH\n");
+    if (ch & 0x0800) printf("             - IMAGE_DLLCHARACTERISTICS_NO_BIND\n");
+    if (ch & 0x2000) printf("             - IMAGE_DLLCHARACTERISTICS_WDM_DRIVER\n");
+    if (ch & 0x8000) printf("             - IMAGE_DLLCHARACTERISTICS_TERMINAL_SERVER_AWARE\n");
+}
+
+typedef struct {
+    WORD Magic;
+    BYTE MajorLinkerVersion;
+    BYTE MinorLinkerVersion;
+    DWORD SizeOfCode;
+    DWORD SizeOfInitializedData;
+    DWORD SizeOfUninitializedData;//
+    DWORD AddressOfEntryPoint;
+    DWORD BaseOfCode;
+    DWORD BaseOfData;
+    DWORD ImageBase;//
+    DWORD SectionAlignment;
+    DWORD FileAlignment;
+    WORD MajorOperatingSystemVersion;
+    WORD MinorOperatingSystemVersion;
+    WORD MajorImageVersion;
+    WORD MinorImageVersion;//
+    WORD MajorSubsystemVersion;
+    WORD MinorSubsystemVersion;
+    DWORD Win32VersionValue;
+    DWORD SizeOfImage;
+    DWORD SizeOfHeaders;//
+    DWORD CheckSum;
+    WORD Subsystem;
+    WORD DllCharacteristics;
+    DWORD SizeOfStackReserve;
+    DWORD SizeOfStackCommit;//
+    DWORD SizeOfHeapReserve;
+    DWORD SizeOfHeapCommit;
+    DWORD LoaderFlags;
+    DWORD NumberOfRvaAndSizes;//
+} IMAGE_OPTIONAL_HEADER32;
+extern IMAGE_OPTIONAL_HEADER32 gOptionalHdr32;
+
+
+typedef struct {
+    WORD Magic;
+    BYTE MajorLinkerVersion;
+    BYTE MinorLinkerVersion;
+    DWORD SizeOfCode;
+    DWORD SizeOfInitializedData;
+    DWORD SizeOfUninitializedData;
+    DWORD AddressOfEntryPoint;
+    DWORD BaseOfCode;
+    ULONGLONG ImageBase;
+    DWORD SectionAlignment;
+    DWORD FileAlignment;
+    WORD MajorOperatingSystemVersion;
+    WORD MinorOperatingSystemVersion;
+    WORD MajorImageVersion;
+    WORD MinorImageVersion;
+    WORD MajorSubsystemVersion;
+    WORD MinorSubsystemVersion;
+    DWORD Win32VersionValue;
+    DWORD SizeOfImage;
+    DWORD SizeOfHeaders;
+    DWORD CheckSum;
+    WORD Subsystem;
+    WORD DllCharacteristics;
+    ULONGLONG SizeOfStackReserve;
+    ULONGLONG SizeOfStackCommit;
+    ULONGLONG SizeOfHeapReserve;
+    ULONGLONG SizeOfHeapCommit;
+    DWORD LoaderFlags;
+    DWORD NumberOfRvaAndSizes;
+} IMAGE_OPTIONAL_HEADER64;
+extern IMAGE_OPTIONAL_HEADER64 gOptionalHdr64;
+
+static const char* directoryNames[] = {
+    "Export                               ",
+    "Import                               ",
+    "Resource                             ",
+    "Exception                            ",
+    "Security                             ",
+    "BaseRelocationTable                  ",
+    "DebugDirectory                       ",
+    "CopyrightOrArchitectureSpecificData  ",
+    "GlobalPtr                            ",
+    "TLSDirectory                         ",
+    "LoadConfigurationDirectory           ",
+    "BoundImportDirectory                 ",
+    "ImportAddressTable                   ",
+    "DelayLoadImportDescriptors           ",
+    "COMRuntimedescriptor                 ",
+    "Reserved                             "
+};
+
+typedef struct {
+    DWORD   VirtualAddress;
+    DWORD   Size;
+} IMAGE_DATA_DIRECTORY;
+extern IMAGE_DATA_DIRECTORY gDataDirectory;
