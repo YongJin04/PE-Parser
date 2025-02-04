@@ -4,9 +4,9 @@
 typedef uint8_t BYTE;
 typedef uint16_t WORD;
 typedef uint32_t DWORD;
+typedef uint64_t QWORD;
 typedef uint32_t LONG;
 typedef uint64_t ULONGLONG;
-
 
 typedef struct {
     WORD   MZSignature;
@@ -150,34 +150,33 @@ typedef struct {
     BYTE MinorLinkerVersion;
     DWORD SizeOfCode;
     DWORD SizeOfInitializedData;
-    DWORD SizeOfUninitializedData;//
+    DWORD SizeOfUninitializedData;
     DWORD AddressOfEntryPoint;
     DWORD BaseOfCode;
     DWORD BaseOfData;
-    DWORD ImageBase;//
+    DWORD ImageBase;
     DWORD SectionAlignment;
     DWORD FileAlignment;
     WORD MajorOperatingSystemVersion;
     WORD MinorOperatingSystemVersion;
     WORD MajorImageVersion;
-    WORD MinorImageVersion;//
+    WORD MinorImageVersion;
     WORD MajorSubsystemVersion;
     WORD MinorSubsystemVersion;
     DWORD Win32VersionValue;
     DWORD SizeOfImage;
-    DWORD SizeOfHeaders;//
+    DWORD SizeOfHeaders;
     DWORD CheckSum;
     WORD Subsystem;
     WORD DllCharacteristics;
     DWORD SizeOfStackReserve;
-    DWORD SizeOfStackCommit;//
+    DWORD SizeOfStackCommit;
     DWORD SizeOfHeapReserve;
     DWORD SizeOfHeapCommit;
     DWORD LoaderFlags;
-    DWORD NumberOfRvaAndSizes;//
+    DWORD NumberOfRvaAndSizes;
 } IMAGE_OPTIONAL_HEADER32;
 extern IMAGE_OPTIONAL_HEADER32 gOptionalHdr32;
-
 
 typedef struct {
     WORD Magic;
@@ -235,4 +234,69 @@ typedef struct {
     DWORD   VirtualAddress;
     DWORD   Size;
 } IMAGE_DATA_DIRECTORY;
-extern IMAGE_DATA_DIRECTORY gDataDirectory;
+extern IMAGE_DATA_DIRECTORY gDataDirectory[16];
+
+static void showSectionCharacteristics(DWORD ch) {
+    if (ch & 0x00000008) printf("         - IMAGE_SCN_TYPE_NO_PAD\n");
+    if (ch & 0x00000020) printf("         - IMAGE_SCN_CNT_CODE\n");
+    if (ch & 0x00000040) printf("         - IMAGE_SCN_CNT_INITIALIZED_DATA\n");
+    if (ch & 0x00000080) printf("         - IMAGE_SCN_CNT_UNINITIALIZED_DATA\n");
+    if (ch & 0x00000100) printf("         - IMAGE_SCN_LNK_OTHER\n");
+    if (ch & 0x00000200) printf("         - IMAGE_SCN_LNK_INFO\n");
+    if (ch & 0x00000800) printf("         - IMAGE_SCN_LNK_REMOVE\n");
+    if (ch & 0x00001000) printf("         - IMAGE_SCN_LNK_COMDAT\n");
+    if (ch & 0x00008000) printf("         - IMAGE_SCN_GPREL\n");
+    if (ch & 0x00020000) printf("         - IMAGE_SCN_MEM_16BIT\n");
+    if (ch & 0x00040000) printf("         - IMAGE_SCN_MEM_LOCKED\n");
+    if (ch & 0x00080000) printf("         - IMAGE_SCN_MEM_PRELOAD\n");
+    if (ch & 0x00100000) printf("         - IMAGE_SCN_ALIGN_1BYTES\n");
+    if (ch & 0x00200000) printf("         - IMAGE_SCN_ALIGN_2BYTES\n");
+    if (ch & 0x00400000) printf("         - IMAGE_SCN_ALIGN_8BYTES\n");
+    if (ch & 0x00800000) printf("         - IMAGE_SCN_ALIGN_128BYTES\n");
+    if (ch & 0x01000000) printf("         - IMAGE_SCN_LNK_NRELOC_OVFL\n");
+    if (ch & 0x02000000) printf("         - IMAGE_SCN_MEM_DISCARDABLE\n");
+    if (ch & 0x04000000) printf("         - IMAGE_SCN_MEM_NOT_CACHED\n");
+    if (ch & 0x08000000) printf("         - IMAGE_SCN_MEM_NOT_PAGED\n");
+    if (ch & 0x10000000) printf("         - IMAGE_SCN_MEM_SHARED\n");
+    if (ch & 0x20000000) printf("         - IMAGE_SCN_MEM_EXECUTE\n");
+    if (ch & 0x40000000) printf("         - IMAGE_SCN_MEM_READ\n");
+    if (ch & 0x80000000) printf("         - IMAGE_SCN_MEM_WRITE\n");
+}
+
+typedef struct {
+    BYTE Name[8];
+    DWORD VirtualSize;
+    DWORD VirtualAddress;
+    DWORD SizeOfRawData;
+    DWORD PointerToRawData;
+    DWORD PointerToRelocations;
+    DWORD PointerToLinenumbers;
+    WORD NumberOfRelocations;
+    WORD NumberOfLinenumbers;
+    DWORD Characteristics;
+} IMAGE_SECTION_HEADER;
+extern IMAGE_SECTION_HEADER gSectionHeader;
+
+typedef struct {
+    DWORD   OriginalFirstThunk;
+    DWORD   TimeDateStamp;
+    DWORD   ForwarderChain;
+    DWORD   Name;
+    DWORD   FirstThunk;
+} IMAGE_IMPORT_DESCRIPTOR;
+extern IMAGE_IMPORT_DESCRIPTOR gImportDescriptor;
+
+typedef struct _IMAGE_EXPORT_DIRECTORY {
+    DWORD   Characteristics;
+    DWORD   TimeDateStamp;
+    WORD    MajorVersion;
+    WORD    MinorVersion;
+    DWORD   Name;
+    DWORD   Base;
+    DWORD   NumberOfFunctions;
+    DWORD   NumberOfNames;
+    DWORD   AddressOfFunctions;
+    DWORD   AddressOfNames;
+    DWORD   AddressOfNameOrdinals;
+} IMAGE_EXPORT_DIRECTORY;
+extern IMAGE_EXPORT_DIRECTORY gExportDirectory;
