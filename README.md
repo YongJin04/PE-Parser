@@ -228,6 +228,7 @@ To use the PE parser, compile the source code and run it with the `-f` option fo
              - DLL Name : MSVCP140D.dll
                  - Import Symbol Name : ?uncaught_exception@std@@YA_NXZ
                  - Import Symbol Name : ?good@ios_base@std@@QEBA_NXZ
+                                  (Some omissions)
                  - Import Symbol Name : ?flags@ios_base@std@@QEBAHXZ
                  - Import Symbol Name : ?width@ios_base@std@@QEBA_JXZ
      - .rdata
@@ -235,6 +236,8 @@ To use the PE parser, compile the source code and run it with the `-f` option fo
              - DLL Name : KERNEL32.dll
                  - Export Symbol Name : AcquireSRWLockExclusive
                  - Export Symbol Name : AcquireSRWLockShared
+                                  (Some omissions)
                  - Export Symbol Name : ActivateActCtx
+                 - Export Symbol Name : ActivateActCtxWorker
 ```
 This output confirms that the PE parser successfully extracts import and export information from PE files.
